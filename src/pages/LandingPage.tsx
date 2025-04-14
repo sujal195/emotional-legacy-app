@@ -1,7 +1,6 @@
-
 import React, { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowDown, Clock, Heart, Calendar, MapPin, MessageCircle, Star } from 'lucide-react';
+import { ArrowDown, Clock, Heart, Calendar, MapPin, MessageCircle, Star, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
@@ -33,7 +32,7 @@ const LandingPage = () => {
   };
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen relative">
       {/* Hero Section */}
       <section className="h-screen flex flex-col justify-center items-center p-4 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-radial from-accent/10 via-background to-background -z-10" />
@@ -151,6 +150,16 @@ const LandingPage = () => {
           </div>
         </div>
       </section>
+
+      {/* Created By Section */}
+      <div className="absolute bottom-4 right-4 text-right">
+        <div className="flex items-center justify-end space-x-2 text-muted-foreground">
+          <User size={16} className="text-primary" />
+          <span className="text-sm font-light">
+            Created By: <span className="text-primary font-semibold">Sujal Giri</span>
+          </span>
+        </div>
+      </div>
     </div>
   );
 };
