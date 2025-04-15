@@ -1,16 +1,19 @@
 
 import { createClient } from '@supabase/supabase-js';
 
+// Get Supabase URL and key from environment variables set by Lovable
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
+// Check and provide feedback if environment variables are missing
 if (!supabaseUrl || !supabaseAnonKey) {
-  console.error('Supabase environment variables are not set');
+  console.error('Supabase environment variables are not set. Please make sure you have connected your project to Supabase correctly.');
 }
 
+// Create and export the Supabase client with proper error checking
 export const supabase = createClient(
-  supabaseUrl || '',
-  supabaseAnonKey || ''
+  supabaseUrl || 'https://placeholder-url.supabase.co', // Fallback URL to prevent runtime error
+  supabaseAnonKey || 'placeholder-key' // Fallback key to prevent runtime error
 );
 
 // Types for database tables
