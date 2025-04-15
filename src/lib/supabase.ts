@@ -1,4 +1,3 @@
-
 import { createClient } from '@supabase/supabase-js';
 
 // Get Supabase URL and key from environment variables set by Lovable
@@ -36,4 +35,12 @@ export type Memory = {
   location?: string;
   is_private: boolean;
   image_url?: string;
+}
+
+export type UserActivity = {
+  id: string;
+  user_id: string;
+  activity_type: 'signin' | 'signout';
+  timestamp: string;
+  created_at: string;
 }

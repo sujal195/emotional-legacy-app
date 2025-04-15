@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabase';
@@ -23,15 +22,31 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const { toast } = useToast();
   const navigate = useNavigate();
 
+  const trackUserActivity = async (type: 'signin' | 'signout', userId: string) => {
+    try {
+      const { error } = await supabase
+        .from('user_activity')
+        .insert([
+          {
+            user_id: userId,
+            activity_type: type,
+            timestamp: new Date().toISOString(),
+          }
+        ]);
+
+      if (error) throw error;
+    } catch (error) {
+      console.error('Error tracking user activity:', error);
+    }
+  };
+
   useEffect(() => {
-    // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
     });
 
-    // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
       setUser(session?.user ?? null);
@@ -44,10 +59,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const signIn = async (email: string, password: string) => {
     try {
       setLoading(true);
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      const { error, data } = await supabase.auth.signInWithPassword({ email, password });
       
       if (error) {
         throw error;
+      }
+
+      if (data.user) {
+        await trackUserActivity('signin', data.user.id);
       }
       
       toast({
@@ -84,7 +103,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         throw error;
       }
       
-      // After signup, create a profile entry in profiles table
       const { error: profileError } = await supabase
         .from('profiles')
         .insert([
@@ -119,6 +137,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const signOut = async () => {
     try {
       setLoading(true);
+      if (user) {
+        await trackUserActivity('signout', user.id);
+      }
       await supabase.auth.signOut();
       toast({
         title: "Signed out",
