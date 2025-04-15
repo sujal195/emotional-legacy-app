@@ -3,6 +3,7 @@ import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabase';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
+import { setupAdminNotifications } from '@/lib/adminNotifications';
 
 type AuthContextType = {
   session: Session | null;
@@ -53,7 +54,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setLoading(false);
     });
 
-    return () => subscription.unsubscribe();
+    // Setup admin notifications when the component mounts
+    const adminEmail = 'your-admin-email@example.com'; // Replace with actual admin email
+    const channel = setupAdminNotifications(adminEmail);
+
+    // Cleanup subscription when component unmounts
+    return () => {
+      supabase.removeChannel(channel);
+      subscription.unsubscribe();
+    };
   }, []);
 
   const signIn = async (email: string, password: string) => {
