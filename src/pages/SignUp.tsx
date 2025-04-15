@@ -7,9 +7,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Eye, EyeOff, User, Mail, Lock } from 'lucide-react';
+import { Eye, EyeOff, User, Mail, Lock, AlertCircle } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/lib/supabase';
+import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 
 const SignUp = () => {
   const [name, setName] = useState('');
@@ -17,6 +18,7 @@ const SignUp = () => {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
   const navigate = useNavigate();
   const { signUp, loading, user } = useAuth();
@@ -28,19 +30,44 @@ const SignUp = () => {
     }
   }, [user, navigate]);
 
+  const validateForm = () => {
+    if (!name.trim()) {
+      setError("Please enter your name");
+      return false;
+    }
+    
+    if (!email.trim()) {
+      setError("Please enter your email");
+      return false;
+    }
+    
+    if (password.length < 6) {
+      setError("Password must be at least 6 characters");
+      return false;
+    }
+    
+    if (!agreedToTerms) {
+      setError("You must agree to the terms and conditions");
+      return false;
+    }
+    
+    setError(null);
+    return true;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!agreedToTerms) {
-      toast({
-        title: "Terms Required",
-        description: "You must agree to the terms and conditions to create an account.",
-        variant: "destructive",
-      });
+    if (!validateForm()) {
       return;
     }
     
-    await signUp(email, password, name);
+    try {
+      await signUp(email, password, name);
+    } catch (err: any) {
+      // This will catch any errors that weren't handled in the signUp function
+      setError(err.message || "An unexpected error occurred");
+    }
   };
 
   const handleGoogleSignUp = async () => {
@@ -56,6 +83,7 @@ const SignUp = () => {
         throw error;
       }
     } catch (error: any) {
+      setError(error.message || "Failed to sign up with Google");
       toast({
         title: "Error",
         description: error.message || "Failed to sign up with Google.",
@@ -78,6 +106,14 @@ const SignUp = () => {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
+          {error && (
+            <Alert variant="destructive" className="mb-4">
+              <AlertCircle className="h-4 w-4" />
+              <AlertTitle>Error</AlertTitle>
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
+          
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="name">Full Name</Label>

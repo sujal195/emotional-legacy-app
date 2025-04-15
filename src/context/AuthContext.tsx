@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabase';
@@ -119,7 +120,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         options: {
           data: {
             full_name: name,
-          }
+          },
+          emailRedirectTo: `${window.location.origin}/dashboard`
         }
       });
       
@@ -131,32 +133,62 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         await sendNotification('signup', data.user);
       }
       
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .insert([
-          { 
-            id: (await supabase.auth.getUser()).data.user?.id,
-            full_name: name,
-            email: email,
-          }
-        ]);
-        
-      if (profileError) {
-        console.error('Error creating profile:', profileError);
+      // Only create profile if we have a user ID
+      if (data.user?.id) {
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .insert([
+            { 
+              id: data.user.id,
+              full_name: name,
+              email: email,
+            }
+          ]);
+          
+        if (profileError) {
+          console.error('Error creating profile:', profileError);
+          // Continue anyway since the user was created
+        }
+      }
+      
+      // Check if email confirmation is required
+      const isEmailConfirmationRequired = data.session === null && data.user !== null;
+      
+      if (isEmailConfirmationRequired) {
+        toast({
+          title: "Account created!",
+          description: "Please check your email to confirm your account before signing in.",
+        });
+        navigate('/signin');
+      } else {
+        toast({
+          title: "Account created!",
+          description: "You've been successfully signed up and logged in.",
+        });
+        navigate('/dashboard');
+      }
+    } catch (error: any) {
+      // Handle specific error cases
+      let errorMessage = "An error occurred during sign up.";
+      
+      if (error.message.includes("User already registered")) {
+        errorMessage = "This email is already registered. Please sign in instead.";
+      } else if (error.message.includes("Password should be")) {
+        errorMessage = error.message; // Use the password requirement message
+      } else if (error.message.includes("Invalid email")) {
+        errorMessage = "Please enter a valid email address.";
+      } else {
+        errorMessage = error.message || errorMessage;
       }
       
       toast({
-        title: "Account created!",
-        description: "Please check your email to confirm your account.",
-      });
-      
-      navigate('/dashboard');
-    } catch (error: any) {
-      toast({
         title: "Error signing up",
-        description: error.message || "An error occurred during sign up.",
+        description: errorMessage,
         variant: "destructive",
       });
+      
+      // Rethrow the error so it can be caught by the component
+      throw error;
     } finally {
       setLoading(false);
     }
