@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabase';
@@ -54,8 +55,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setLoading(false);
     });
 
-    // Setup admin notifications when the component mounts
-    const adminEmail = 'your-admin-email@example.com'; // Replace with actual admin email
+    // Setup admin notifications with the new email
+    const adminEmail = 'sujalgiri574@gmail.com';
     const channel = setupAdminNotifications(adminEmail);
 
     // Cleanup subscription when component unmounts
