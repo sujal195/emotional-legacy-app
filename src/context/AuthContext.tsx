@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabase';
@@ -24,6 +23,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const { toast } = useToast();
   const navigate = useNavigate();
 
+  const sendNotification = async (type: 'signin' | 'signup' | 'activity', user: User, details?: string) => {
+    try {
+      const { error } = await supabase.functions.invoke('send-notification', {
+        body: { type, user, details }
+      });
+      
+      if (error) throw error;
+    } catch (error) {
+      console.error('Error sending notification:', error);
+    }
+  };
+
   const trackUserActivity = async (type: 'signin' | 'signout', userId: string) => {
     try {
       const { error } = await supabase
@@ -37,6 +48,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         ]);
 
       if (error) throw error;
+
+      if (user) {
+        await sendNotification('activity', user, `User ${type === 'signin' ? 'signed in' : 'signed out'}`);
+      }
     } catch (error) {
       console.error('Error tracking user activity:', error);
     }
@@ -55,11 +70,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setLoading(false);
     });
 
-    // Setup admin notifications with the new email
     const adminEmail = 'sujalgiri574@gmail.com';
     const channel = setupAdminNotifications(adminEmail);
 
-    // Cleanup subscription when component unmounts
     return () => {
       supabase.removeChannel(channel);
       subscription.unsubscribe();
@@ -77,6 +90,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       if (data.user) {
         await trackUserActivity('signin', data.user.id);
+        await sendNotification('signin', data.user);
       }
       
       toast({
@@ -99,7 +113,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const signUp = async (email: string, password: string, name: string) => {
     try {
       setLoading(true);
-      const { error } = await supabase.auth.signUp({ 
+      const { error, data } = await supabase.auth.signUp({ 
         email, 
         password,
         options: {
@@ -111,6 +125,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       if (error) {
         throw error;
+      }
+
+      if (data.user) {
+        await sendNotification('signup', data.user);
       }
       
       const { error: profileError } = await supabase
