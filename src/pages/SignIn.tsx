@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
@@ -6,15 +5,17 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Eye, EyeOff, Mail, Lock } from 'lucide-react';
+import { Eye, EyeOff, Mail, Lock, AlertCircle } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/lib/supabase';
+import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 
 const SignIn = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
   const navigate = useNavigate();
   const { signIn, loading, user } = useAuth();
@@ -28,33 +29,45 @@ const SignIn = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
     await signIn(email, password);
   };
 
   const handleGoogleSignIn = async () => {
     try {
       setIsLoading(true);
-      console.log("Starting Google sign in...");
+      setError(null);
+      console.log("Starting Google sign in process...");
       
-      const { error } = await supabase.auth.signInWithOAuth({
+      // Log Supabase auth config to help debugging
+      console.log("Supabase auth config:", {
+        url: supabase.supabaseUrl,
+        authFlowType: supabase.auth.flowType,
+        site: window.location.origin
+      });
+      
+      const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
           redirectTo: `${window.location.origin}/dashboard`,
         },
       });
       
+      console.log("Google sign in response:", { data, error });
+      
       if (error) {
         console.error("Google sign in error:", error);
+        setError(error.message || "Failed to sign in with Google. Make sure Google provider is enabled in Supabase.");
         toast({
           title: "Google Sign In Error",
           description: error.message || "Failed to sign in with Google. Make sure Google provider is enabled in Supabase.",
           variant: "destructive",
         });
-        throw error;
       }
       // No need to navigate - OAuth will handle the redirect
     } catch (error: any) {
       console.error('Google sign in error:', error);
+      setError(error.message || "Failed to sign in with Google. Please try again.");
       toast({
         title: "Error",
         description: error.message || "Failed to sign in with Google. Please try again.",
@@ -79,6 +92,14 @@ const SignIn = () => {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
+          {error && (
+            <Alert variant="destructive" className="mb-4">
+              <AlertCircle className="h-4 w-4" />
+              <AlertTitle>Error</AlertTitle>
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
+          
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>

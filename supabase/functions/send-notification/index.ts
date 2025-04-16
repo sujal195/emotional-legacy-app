@@ -26,6 +26,8 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
+    console.log("Email notification function called");
+    
     const { type, user, details }: NotificationRequest = await req.json();
 
     let subject = '';
@@ -47,6 +49,7 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     console.log(`Sending email notification: ${subject} - ${content}`);
+    console.log(`To: sujalgiri574@gmail.com, From: Memoria Notifications <onboarding@resend.dev>`);
 
     const emailResponse = await resend.emails.send({
       from: "Memoria Notifications <onboarding@resend.dev>",
@@ -63,7 +66,7 @@ const handler = async (req: Request): Promise<Response> => {
       `,
     });
 
-    console.log("Email sent successfully:", emailResponse);
+    console.log("Email sending response:", emailResponse);
 
     return new Response(JSON.stringify(emailResponse), {
       status: 200,

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
@@ -74,23 +73,33 @@ const SignUp = () => {
   const handleGoogleSignUp = async () => {
     try {
       setIsLoading(true);
-      console.log("Starting Google sign up");
+      setError(null);
+      console.log("Starting Google sign up process...");
       
-      const { error } = await supabase.auth.signInWithOAuth({
+      // Log Supabase auth config to help debugging
+      console.log("Supabase auth config:", {
+        url: supabase.supabaseUrl,
+        authFlowType: supabase.auth.flowType,
+        site: window.location.origin
+      });
+      
+      const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
           redirectTo: `${window.location.origin}/dashboard`,
         },
       });
       
+      console.log("Google sign up response:", { data, error });
+      
       if (error) {
         console.error("Google sign up error:", error);
+        setError(error.message || "Failed to sign up with Google. Make sure Google provider is enabled in Supabase.");
         toast({
           title: "Google Sign Up Error",
           description: error.message || "Failed to sign up with Google. Make sure Google provider is enabled in Supabase.",
           variant: "destructive",
         });
-        throw error;
       }
       // No need to navigate - OAuth will handle the redirect
     } catch (error: any) {
