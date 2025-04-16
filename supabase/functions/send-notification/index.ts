@@ -46,6 +46,8 @@ const handler = async (req: Request): Promise<Response> => {
         break;
     }
 
+    console.log(`Sending email notification: ${subject} - ${content}`);
+
     const emailResponse = await resend.emails.send({
       from: "Memoria Notifications <onboarding@resend.dev>",
       to: ["sujalgiri574@gmail.com"],

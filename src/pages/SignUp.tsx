@@ -74,6 +74,8 @@ const SignUp = () => {
   const handleGoogleSignUp = async () => {
     try {
       setIsLoading(true);
+      console.log("Starting Google sign up");
+      
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
@@ -82,6 +84,7 @@ const SignUp = () => {
       });
       
       if (error) {
+        console.error("Google sign up error:", error);
         throw error;
       }
       // No need to navigate - OAuth will handle the redirect

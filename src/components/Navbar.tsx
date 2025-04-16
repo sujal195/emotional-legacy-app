@@ -46,7 +46,7 @@ const Navbar = () => {
           </Link>
         </div>
 
-        {/* Desktop menu - Only shown to authenticated users */}
+        {/* Desktop menu - Only shows login/signup for unauthenticated users */}
         <div className="hidden md:flex md:items-center md:space-x-8">
           {user ? (
             <>

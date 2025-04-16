@@ -42,6 +42,7 @@ const SignIn = () => {
       });
       
       if (error) {
+        console.error("Google sign in error:", error);
         throw error;
       }
       // No need to navigate - OAuth will handle the redirect
