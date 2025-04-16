@@ -1,19 +1,14 @@
 
 import { createClient } from '@supabase/supabase-js';
 
-// Get Supabase URL and key from environment variables set by Lovable
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-
-// Check and provide feedback if environment variables are missing
-if (!supabaseUrl || !supabaseAnonKey) {
-  console.error('Supabase environment variables are not set. Please make sure you have connected your project to Supabase correctly.');
-}
+// Get Supabase URL and key from the project's actual Supabase instance
+const supabaseUrl = 'https://spweeempthmwxplxumvf.supabase.co';
+const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNwd2VlZW1wdGhtd3hwbHh1bXZmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ2NTc4NzAsImV4cCI6MjA2MDIzMzg3MH0.PJ6Xq3nlDjoOZHxogbJrDD_N_7sZH_P0x4JYeTytgUo';
 
 // Create and export the Supabase client with proper auth configuration
 export const supabase = createClient(
-  supabaseUrl || 'https://placeholder-url.supabase.co', // Fallback URL to prevent runtime error
-  supabaseAnonKey || 'placeholder-key', // Fallback key to prevent runtime error
+  supabaseUrl,
+  supabaseAnonKey,
   {
     auth: {
       persistSession: true,
