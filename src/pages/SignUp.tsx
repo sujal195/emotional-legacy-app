@@ -85,6 +85,11 @@ const SignUp = () => {
       
       if (error) {
         console.error("Google sign up error:", error);
+        toast({
+          title: "Google Sign Up Error",
+          description: error.message || "Failed to sign up with Google. Make sure Google provider is enabled in Supabase.",
+          variant: "destructive",
+        });
         throw error;
       }
       // No need to navigate - OAuth will handle the redirect

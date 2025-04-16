@@ -34,6 +34,8 @@ const SignIn = () => {
   const handleGoogleSignIn = async () => {
     try {
       setIsLoading(true);
+      console.log("Starting Google sign in...");
+      
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
@@ -43,6 +45,11 @@ const SignIn = () => {
       
       if (error) {
         console.error("Google sign in error:", error);
+        toast({
+          title: "Google Sign In Error",
+          description: error.message || "Failed to sign in with Google. Make sure Google provider is enabled in Supabase.",
+          variant: "destructive",
+        });
         throw error;
       }
       // No need to navigate - OAuth will handle the redirect
