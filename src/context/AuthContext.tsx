@@ -3,7 +3,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabase';
 import { useToast } from '@/hooks/use-toast';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { setupAdminNotifications } from '@/lib/adminNotifications';
 
 type AuthContextType = {
@@ -17,12 +17,16 @@ type AuthContextType = {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// List of routes that don't require authentication
+const publicRoutes = ['/', '/signin', '/signup', '/forgot-password'];
+
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const sendNotification = async (type: 'signin' | 'signup' | 'activity', user: User, details?: string) => {
     try {
@@ -59,13 +63,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    // Set up auth state listener FIRST
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log('Auth state changed:', event, session?.user?.email);
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
+      
+      // Handle post-login/signup activities
+      if (event === 'SIGNED_IN' && session?.user) {
+        // Use setTimeout to avoid deadlocks with Supabase client
+        setTimeout(async () => {
+          await trackUserActivity('signin', session.user.id);
+          
+          // Redirect to dashboard after sign in if on a public route
+          if (location.pathname === '/signin' || location.pathname === '/signup') {
+            navigate('/dashboard');
+          }
+        }, 0);
+      }
     });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    // THEN check for existing session
+    supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
@@ -78,7 +98,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       supabase.removeChannel(channel);
       subscription.unsubscribe();
     };
-  }, []);
+  }, [navigate, location.pathname]);
+
+  // Protected routes logic
+  useEffect(() => {
+    const checkAuth = async () => {
+      if (loading) return;
+      
+      const isPublicRoute = publicRoutes.includes(location.pathname);
+      
+      if (!session && !isPublicRoute) {
+        // Redirect to signin if trying to access a protected route without being logged in
+        navigate('/signin', { replace: true });
+        toast({
+          title: "Authentication required",
+          description: "Please sign in to access this page.",
+        });
+      }
+    };
+    
+    checkAuth();
+  }, [session, loading, location.pathname, navigate, toast]);
 
   const signIn = async (email: string, password: string) => {
     try {

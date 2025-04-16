@@ -20,6 +20,7 @@ export const supabase = createClient(
       autoRefreshToken: true,
       storageKey: 'memoria-auth-storage',
       storage: localStorage,
+      flowType: 'pkce', // Important for OAuth providers like Google
     }
   }
 );
