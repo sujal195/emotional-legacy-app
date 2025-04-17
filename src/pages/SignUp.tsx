@@ -84,14 +84,14 @@ const SignUp = () => {
         },
       });
       
-      console.log("Google sign up response:", { data, error });
+      console.log("Google sign up response:", { data });
       
       if (error) {
         console.error("Google sign up error:", error);
-        setError(error.message || "Failed to sign up with Google. Make sure Google provider is enabled in Supabase.");
+        setError(error.message || "Failed to sign up with Google. Please check the Supabase configuration.");
         toast({
           title: "Google Sign Up Error",
-          description: error.message || "Failed to sign up with Google. Make sure Google provider is enabled in Supabase.",
+          description: error.message || "Failed to sign up with Google. Please check the Supabase configuration.",
           variant: "destructive",
         });
       }

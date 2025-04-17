@@ -47,14 +47,14 @@ const SignIn = () => {
         },
       });
       
-      console.log("Google sign in response:", { data, error });
+      console.log("Google sign in response:", { data });
       
       if (error) {
         console.error("Google sign in error:", error);
-        setError(error.message || "Failed to sign in with Google. Make sure Google provider is enabled in Supabase.");
+        setError(error.message || "Failed to sign in with Google. Please check the Supabase configuration.");
         toast({
           title: "Google Sign In Error",
-          description: error.message || "Failed to sign in with Google. Make sure Google provider is enabled in Supabase.",
+          description: error.message || "Failed to sign in with Google. Please check the Supabase configuration.",
           variant: "destructive",
         });
       }
