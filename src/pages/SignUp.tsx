@@ -76,12 +76,8 @@ const SignUp = () => {
       setError(null);
       console.log("Starting Google sign up process...");
       
-      // Log Supabase auth config to help debugging
-      console.log("Supabase auth config:", {
-        url: supabase.supabaseUrl,
-        authFlowType: supabase.auth.flowType,
-        site: window.location.origin
-      });
+      // Removed references to protected properties
+      console.log("Attempting to sign up with Google OAuth...");
       
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
