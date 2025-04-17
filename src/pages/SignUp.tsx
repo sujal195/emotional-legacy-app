@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
@@ -24,12 +23,23 @@ const SignUp = () => {
   const navigate = useNavigate();
   const { signUp, loading, user } = useAuth();
 
-  // Handle URL auth response on page load
+  // Enhanced URL auth response handler
   useEffect(() => {
     const handleAuthResponse = async () => {
-      const { data, error } = await supabase.auth.getSession();
-      if (data.session && !error) {
-        navigate('/dashboard');
+      console.log("Checking for auth session on signup page load");
+      try {
+        const { data, error } = await supabase.auth.getSession();
+        console.log("Auth session check result:", data.session ? "Session found" : "No session", error);
+        
+        if (error) {
+          console.error("Error checking session:", error);
+          setError(error.message);
+        } else if (data.session) {
+          console.log("Session found, redirecting to dashboard");
+          navigate('/dashboard');
+        }
+      } catch (e) {
+        console.error("Exception in auth response handler:", e);
       }
     };
     

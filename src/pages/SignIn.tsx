@@ -21,18 +21,27 @@ const SignIn = () => {
   const { signIn, loading, user } = useAuth();
 
   useEffect(() => {
-    // If user is already logged in, redirect to dashboard
     if (user) {
       navigate('/dashboard');
     }
   }, [user, navigate]);
 
-  // Handle URL auth response on page load
   useEffect(() => {
     const handleAuthResponse = async () => {
-      const { data, error } = await supabase.auth.getSession();
-      if (data.session && !error) {
-        navigate('/dashboard');
+      console.log("Checking for auth session on page load");
+      try {
+        const { data, error } = await supabase.auth.getSession();
+        console.log("Auth session check result:", data.session ? "Session found" : "No session", error);
+        
+        if (error) {
+          console.error("Error checking session:", error);
+          setError(error.message);
+        } else if (data.session) {
+          console.log("Session found, redirecting to dashboard");
+          navigate('/dashboard');
+        }
+      } catch (e) {
+        console.error("Exception in auth response handler:", e);
       }
     };
     
@@ -58,7 +67,7 @@ const SignIn = () => {
         },
       });
       
-      console.log("Google sign in response:", { data });
+      console.log("Google sign in response:", data);
       
       if (error) {
         console.error("Google sign in error:", error);

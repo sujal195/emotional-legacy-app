@@ -15,7 +15,8 @@ export const supabase = createClient(
       autoRefreshToken: true,
       storageKey: 'memoria-auth-storage',
       storage: localStorage,
-      detectSessionInUrl: true // Detect OAuth session in the URL
+      detectSessionInUrl: true, // Detect OAuth session in the URL
+      debug: true // Re-enable debug mode to help troubleshoot
     }
   }
 );

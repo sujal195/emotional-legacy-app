@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabase';
@@ -75,13 +74,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (event === 'SIGNED_IN' && session?.user) {
         // Use setTimeout to avoid deadlocks with Supabase client
         setTimeout(async () => {
+          console.log('User signed in, tracking activity');
           await trackUserActivity('signin', session.user.id);
           
           // Redirect to dashboard after sign in if on a public route
           if (location.pathname === '/signin' || location.pathname === '/signup') {
+            console.log('Redirecting to dashboard after sign in');
             navigate('/dashboard');
           }
         }, 0);
+      } else if (event === 'SIGNED_OUT') {
+        console.log('User signed out');
       }
     });
 
@@ -102,7 +105,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
   }, [navigate, location.pathname]);
 
-  // Protected routes logic
   useEffect(() => {
     const checkAuth = async () => {
       if (loading) return;
