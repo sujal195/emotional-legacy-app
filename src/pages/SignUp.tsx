@@ -24,6 +24,18 @@ const SignUp = () => {
   const navigate = useNavigate();
   const { signUp, loading, user } = useAuth();
 
+  // Handle URL auth response on page load
+  useEffect(() => {
+    const handleAuthResponse = async () => {
+      const { data, error } = await supabase.auth.getSession();
+      if (data.session && !error) {
+        navigate('/dashboard');
+      }
+    };
+    
+    handleAuthResponse();
+  }, [navigate]);
+
   useEffect(() => {
     // If user is already logged in, redirect to dashboard
     if (user) {

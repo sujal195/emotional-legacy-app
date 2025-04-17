@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
@@ -27,6 +26,18 @@ const SignIn = () => {
       navigate('/dashboard');
     }
   }, [user, navigate]);
+
+  // Handle URL auth response on page load
+  useEffect(() => {
+    const handleAuthResponse = async () => {
+      const { data, error } = await supabase.auth.getSession();
+      if (data.session && !error) {
+        navigate('/dashboard');
+      }
+    };
+    
+    handleAuthResponse();
+  }, [navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

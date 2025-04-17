@@ -15,9 +15,7 @@ export const supabase = createClient(
       autoRefreshToken: true,
       storageKey: 'memoria-auth-storage',
       storage: localStorage,
-      flowType: 'pkce', // Important for OAuth providers like Google
-      detectSessionInUrl: true, // Detect OAuth session in the URL
-      debug: true // Enable debug mode to see more detailed logs
+      detectSessionInUrl: true // Detect OAuth session in the URL
     }
   }
 );
