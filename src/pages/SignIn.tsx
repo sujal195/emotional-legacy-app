@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
@@ -38,9 +39,6 @@ const SignIn = () => {
       setIsLoading(true);
       setError(null);
       console.log("Starting Google sign in process...");
-      
-      // Removed references to protected properties
-      console.log("Attempting to sign in with Google OAuth...");
       
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
