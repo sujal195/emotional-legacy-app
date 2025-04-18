@@ -9,6 +9,30 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      friend_requests: {
+        Row: {
+          created_at: string
+          id: string
+          receiver_id: string
+          sender_id: string
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          receiver_id: string
+          sender_id: string
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          receiver_id?: string
+          sender_id?: string
+          status?: string
+        }
+        Relationships: []
+      }
       "memoria backend": {
         Row: {
           Content: string | null
@@ -24,6 +48,98 @@ export type Database = {
           Content?: string | null
           created_at?: string
           id?: number
+        }
+        Relationships: []
+      }
+      memories: {
+        Row: {
+          created_at: string
+          date: string
+          description: string | null
+          emotion: string | null
+          id: string
+          image_url: string | null
+          is_private: boolean
+          location: string | null
+          title: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          date: string
+          description?: string | null
+          emotion?: string | null
+          id?: string
+          image_url?: string | null
+          is_private?: boolean
+          location?: string | null
+          title: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          description?: string | null
+          emotion?: string | null
+          id?: string
+          image_url?: string | null
+          is_private?: boolean
+          location?: string | null
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      memory_likes: {
+        Row: {
+          created_at: string
+          id: string
+          memory_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          memory_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          memory_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "memory_likes_memory_id_fkey"
+            columns: ["memory_id"]
+            isOneToOne: false
+            referencedRelation: "memories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          email: string | null
+          full_name: string | null
+          id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id?: string
         }
         Relationships: []
       }

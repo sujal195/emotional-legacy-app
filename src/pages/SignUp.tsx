@@ -23,7 +23,6 @@ const SignUp = () => {
   const navigate = useNavigate();
   const { signUp, loading, user } = useAuth();
 
-  // Enhanced URL auth response handler
   useEffect(() => {
     const handleAuthResponse = async () => {
       console.log("Checking for auth session on signup page load");
@@ -47,7 +46,6 @@ const SignUp = () => {
   }, [navigate]);
 
   useEffect(() => {
-    // If user is already logged in, redirect to dashboard
     if (user) {
       navigate('/dashboard');
     }
@@ -88,7 +86,6 @@ const SignUp = () => {
     try {
       await signUp(email, password, name);
     } catch (err: any) {
-      // This will catch any errors that weren't handled in the signUp function
       setError(err.message || "An unexpected error occurred");
     }
   };

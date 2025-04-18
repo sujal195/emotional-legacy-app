@@ -15,39 +15,31 @@ export const supabase = createClient(
       autoRefreshToken: true,
       storageKey: 'memoria-auth-storage',
       storage: localStorage,
-      detectSessionInUrl: true, // Detect OAuth session in the URL
-      debug: true // Re-enable debug mode to help troubleshoot
+      detectSessionInUrl: true,
+      debug: true
     }
   }
 );
 
 // Types for database tables
-export type User = {
+export type Profile = {
   id: string;
-  email: string;
-  full_name: string;
+  full_name: string | null;
+  email: string | null;
+  avatar_url: string | null;
   created_at: string;
-  avatar_url?: string;
 }
 
 export type Memory = {
   id: string;
   user_id: string;
   title: string;
-  description: string;
-  date: string; // The date the memory occurred
-  created_at: string;
-  emotion?: string;
-  location?: string;
+  description: string | null;
+  date: string;
+  emotion: string | null;
+  location: string | null;
   is_private: boolean;
-  image_url?: string;
-}
-
-export type UserActivity = {
-  id: string;
-  user_id: string;
-  activity_type: 'signin' | 'signout';
-  timestamp: string;
+  image_url: string | null;
   created_at: string;
 }
 
@@ -55,14 +47,6 @@ export type MemoryLike = {
   id: string;
   user_id: string;
   memory_id: string;
-  created_at: string;
-}
-
-export type Friend = {
-  id: string;
-  user_id: string;
-  friend_id: string;
-  status: 'pending' | 'accepted' | 'rejected';
   created_at: string;
 }
 
