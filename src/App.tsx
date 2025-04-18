@@ -12,6 +12,9 @@ import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
 import Dashboard from "./pages/Dashboard";
 import Timeline from "./pages/Timeline";
+import Profile from "./pages/Profile";
+import Friends from "./pages/Friends";
+import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 
 // Components
@@ -36,6 +39,10 @@ const App = () => (
                 <Route path="/signup" element={<SignUp />} />
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/timeline" element={<Timeline />} />
+                <Route path="/profile" element={<Profile />} />
+                <Route path="/profile/:id" element={<Profile />} />
+                <Route path="/friends" element={<Friends />} />
+                <Route path="/settings" element={<Settings />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </main>

@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowDown, Clock, Heart, Calendar, MapPin, MessageCircle, Star, User } from 'lucide-react';
@@ -43,23 +44,23 @@ const LandingPage = () => {
           </h1>
           <div className="overflow-hidden max-w-3xl mx-auto">
             <p className="text-xl md:text-2xl lg:text-3xl mb-8 text-foreground/80 animate-slide-up wavy-text">
-              Your Life as a Living Timeline
+              Cherish Every Moment, Tell Your Story
             </p>
           </div>
           
           <p className="text-base md:text-lg max-w-xl mx-auto mb-10 text-muted-foreground animate-fade-in">
-            Instead of random posts, build a scrollable, interactive timeline of your life. It's not just social media; it's your legacy.
+            More than just memories - create a beautiful, living timeline of your life journey. Share moments that matter with those who matter most.
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in">
             <Link to="/signup">
               <Button size="lg" className="bg-primary hover:bg-primary/80">
-                Start Your Timeline
+                Begin Your Journey
               </Button>
             </Link>
             <Link to="/signin">
               <Button size="lg" variant="outline" className="border-primary hover:bg-secondary">
-                Sign In
+                Welcome Back
               </Button>
             </Link>
           </div>
@@ -78,39 +79,39 @@ const LandingPage = () => {
       <section ref={timelineRef} className="py-20 bg-secondary">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-16 animate-on-scroll opacity-0">
-            <span className="text-primary">Revolutionary</span> Features
+            <span className="text-primary">Magical</span> Features
           </h2>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             <FeatureCard
               icon={<Calendar className="h-10 w-10 text-primary" />}
               title="Life Timeline"
-              description="Create a visual, scrollable timeline from birth to now. Post memories, feelings, milestones, and more."
+              description="Create a beautiful, visual journey from your past to present. Capture life's milestones, big and small."
             />
             <FeatureCard
               icon={<Heart className="h-10 w-10 text-primary" />}
               title="Emotional Tags"
-              description="Tag your posts with emotions like joy, heartbreak, or growth. Navigate your life emotionally, not just chronologically."
+              description="Color your memories with emotions. Sort by joy, love, growth or any feeling that matters to you."
             />
             <FeatureCard
               icon={<Clock className="h-10 w-10 text-primary" />}
               title="Time Capsule Posts"
-              description="Schedule memories to unlock for others or yourself in the future."
+              description="Send messages to your future self or loved ones. Create magical moments that unlock at just the right time."
             />
             <FeatureCard
               icon={<MessageCircle className="h-10 w-10 text-primary" />}
               title="Connection Threads"
-              description="Link your memories with friends and family to create shared storylines across multiple timelines."
+              description="Link memories with friends and family, weaving beautiful narratives across multiple timelines."
             />
             <FeatureCard
               icon={<Star className="h-10 w-10 text-primary" />}
               title="Legacy Mode"
-              description="Pass down your timeline to loved ones, creating a digital memorial of your life."
+              description="Create a lasting digital legacy of your journey to share with future generations."
             />
             <FeatureCard
               icon={<MapPin className="h-10 w-10 text-primary" />}
               title="Location Memories"
-              description="Pin your memories to specific places and revisit them on a map of your life journey."
+              description="Map your journey across places that shaped your story. Revisit special locations anytime."
             />
           </div>
         </div>
@@ -126,25 +127,25 @@ const LandingPage = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
             <ReasonCard
               number="01"
-              title="Meaningful"
-              description="Focused on meaning, not clout or temporary trends."
+              title="Heartfelt"
+              description="Focus on what truly matters - not likes or trends, but the real story of your life."
             />
             <ReasonCard
               number="02"
-              title="Emotional"
-              description="Every profile is an emotional journey, not just pictures."
+              title="Soulful"
+              description="Every profile is a journey through emotions, not just a collection of photos."
             />
             <ReasonCard
               number="03"
-              title="Legacy"
-              description="Designed to be a legacy of your existence that lasts."
+              title="Timeless"
+              description="Create something beautiful that lasts beyond the moment - your digital legacy."
             />
           </div>
           
           <div className="mt-16 animate-on-scroll opacity-0">
             <Link to="/signup">
               <Button size="lg" className="bg-primary hover:bg-primary/80">
-                Create Your Timeline Now
+                Start Your Story Today
               </Button>
             </Link>
           </div>

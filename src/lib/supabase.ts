@@ -50,3 +50,26 @@ export type UserActivity = {
   timestamp: string;
   created_at: string;
 }
+
+export type MemoryLike = {
+  id: string;
+  user_id: string;
+  memory_id: string;
+  created_at: string;
+}
+
+export type Friend = {
+  id: string;
+  user_id: string;
+  friend_id: string;
+  status: 'pending' | 'accepted' | 'rejected';
+  created_at: string;
+}
+
+export type FriendRequest = {
+  id: string;
+  sender_id: string;
+  receiver_id: string;
+  status: 'pending' | 'accepted' | 'rejected';
+  created_at: string;
+}

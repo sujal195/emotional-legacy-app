@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Menu, X, LogOut, User } from 'lucide-react';
+import { Menu, X, LogOut, User, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/context/AuthContext';
@@ -23,11 +23,16 @@ const Navbar = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Navigation items - only shown to authenticated users
+  // Navigation items - shown to all users
   const navigation = [
     { name: 'Home', href: '/' },
     { name: 'Timeline', href: '/timeline' },
+  ];
+  
+  // Navigation items - only shown to authenticated users
+  const authNavigation = [
     { name: 'Dashboard', href: '/dashboard' },
+    { name: 'Profile', href: '/profile' },
   ];
 
   return (
@@ -46,39 +51,50 @@ const Navbar = () => {
           </Link>
         </div>
 
-        {/* Desktop menu - Only shows login/signup for unauthenticated users */}
+        {/* Desktop menu */}
         <div className="hidden md:flex md:items-center md:space-x-8">
+          {navigation.map((item) => (
+            <Link
+              key={item.name}
+              to={item.href}
+              className={cn(
+                'text-sm font-medium transition-colors hover:text-primary',
+                location.pathname === item.href ? 'text-primary' : 'text-foreground/70'
+              )}
+            >
+              {item.name}
+            </Link>
+          ))}
+          
+          {user && authNavigation.map((item) => (
+            <Link
+              key={item.name}
+              to={item.href}
+              className={cn(
+                'text-sm font-medium transition-colors hover:text-primary',
+                location.pathname === item.href ? 'text-primary' : 'text-foreground/70'
+              )}
+            >
+              {item.name}
+            </Link>
+          ))}
+          
           {user ? (
-            <>
-              {navigation.map((item) => (
-                <Link
-                  key={item.name}
-                  to={item.href}
-                  className={cn(
-                    'text-sm font-medium transition-colors hover:text-primary',
-                    location.pathname === item.href ? 'text-primary' : 'text-foreground/70'
-                  )}
-                >
-                  {item.name}
-                </Link>
-              ))}
-              
-              <div className="flex items-center space-x-3">
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="flex items-center"
-                  onClick={() => navigate('/dashboard')}
-                >
-                  <User size={16} className="mr-2" />
-                  Profile
-                </Button>
-                <Button variant="outline" size="sm" className="flex items-center" onClick={signOut}>
-                  <LogOut size={16} className="mr-2" />
-                  Sign Out
-                </Button>
-              </div>
-            </>
+            <div className="flex items-center space-x-3">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="flex items-center"
+                onClick={() => navigate('/profile')}
+              >
+                <User size={16} className="mr-2" />
+                Profile
+              </Button>
+              <Button variant="outline" size="sm" className="flex items-center" onClick={signOut}>
+                <LogOut size={16} className="mr-2" />
+                Sign Out
+              </Button>
+            </div>
           ) : (
             <div className="flex space-x-3">
               <Link to="/signin">
@@ -110,46 +126,59 @@ const Navbar = () => {
       {isOpen && (
         <div className="md:hidden bg-background/95 backdrop-blur-md shadow-lg">
           <div className="px-4 pt-2 pb-4 space-y-1">
+            {navigation.map((item) => (
+              <Link
+                key={item.name}
+                to={item.href}
+                className={cn(
+                  'block px-3 py-2 rounded-md text-base font-medium',
+                  location.pathname === item.href ? 'text-primary' : 'text-foreground/70'
+                )}
+                onClick={() => setIsOpen(false)}
+              >
+                {item.name}
+              </Link>
+            ))}
+            
+            {user && authNavigation.map((item) => (
+              <Link
+                key={item.name}
+                to={item.href}
+                className={cn(
+                  'block px-3 py-2 rounded-md text-base font-medium',
+                  location.pathname === item.href ? 'text-primary' : 'text-foreground/70'
+                )}
+                onClick={() => setIsOpen(false)}
+              >
+                {item.name}
+              </Link>
+            ))}
+            
             {user ? (
-              <>
-                {navigation.map((item) => (
-                  <Link
-                    key={item.name}
-                    to={item.href}
-                    className={cn(
-                      'block px-3 py-2 rounded-md text-base font-medium',
-                      location.pathname === item.href ? 'text-primary' : 'text-foreground/70'
-                    )}
-                    onClick={() => setIsOpen(false)}
-                  >
-                    {item.name}
-                  </Link>
-                ))}
-                <div className="flex flex-col space-y-3 pt-4">
-                  <Button 
-                    variant="outline" 
-                    className="w-full flex items-center justify-center"
-                    onClick={() => {
-                      navigate('/dashboard');
-                      setIsOpen(false);
-                    }}
-                  >
-                    <User size={16} className="mr-2" />
-                    Profile
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    className="w-full flex items-center justify-center" 
-                    onClick={() => {
-                      signOut();
-                      setIsOpen(false);
-                    }}
-                  >
-                    <LogOut size={16} className="mr-2" />
-                    Sign Out
-                  </Button>
-                </div>
-              </>
+              <div className="flex flex-col space-y-3 pt-4">
+                <Button 
+                  variant="outline" 
+                  className="w-full flex items-center justify-center"
+                  onClick={() => {
+                    navigate('/profile');
+                    setIsOpen(false);
+                  }}
+                >
+                  <User size={16} className="mr-2" />
+                  Profile
+                </Button>
+                <Button 
+                  variant="outline" 
+                  className="w-full flex items-center justify-center" 
+                  onClick={() => {
+                    signOut();
+                    setIsOpen(false);
+                  }}
+                >
+                  <LogOut size={16} className="mr-2" />
+                  Sign Out
+                </Button>
+              </div>
             ) : (
               <div className="flex flex-col space-y-3 pt-4">
                 <Link to="/signin" onClick={() => setIsOpen(false)}>
