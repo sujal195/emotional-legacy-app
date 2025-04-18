@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
@@ -8,9 +7,13 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Heart, Calendar, MapPin, Edit, Settings } from 'lucide-react';
+import { Heart, Calendar, MapPin, Edit, Settings, Upload } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
+import { useProfile } from '@/hooks/useProfile';
+import { useProfilePicture } from '@/hooks/useProfilePicture';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
 
 const Profile = () => {
   const { id } = useParams();
@@ -23,6 +26,74 @@ const Profile = () => {
   
   const isOwnProfile = user?.id === id || (!id && user);
   const profileId = id || user?.id;
+
+  const [isEditingBio, setIsEditingBio] = useState(false);
+  const [bioText, setBioText] = useState('');
+  const { uploadProfilePicture, uploading } = useProfilePicture();
+
+  useEffect(() => {
+    if (profile?.bio) {
+      setBioText(profile.bio);
+    }
+  }, [profile]);
+
+  const handleProfilePictureUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file || !user) return;
+
+    const url = await uploadProfilePicture(file, user.id);
+    if (url) {
+      try {
+        const { error } = await supabase
+          .from('profiles')
+          .update({ avatar_url: url })
+          .eq('id', user.id);
+
+        if (error) throw error;
+
+        // Refresh profile data
+        setProfile({ ...profile, avatar_url: url });
+        
+        toast({
+          title: 'Success',
+          description: 'Profile picture updated successfully',
+        });
+      } catch (error: any) {
+        toast({
+          title: 'Error',
+          description: error.message,
+          variant: 'destructive',
+        });
+      }
+    }
+  };
+
+  const handleBioUpdate = async () => {
+    if (!user) return;
+
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ bio: bioText })
+        .eq('id', user.id);
+
+      if (error) throw error;
+
+      setProfile({ ...profile, bio: bioText });
+      setIsEditingBio(false);
+      
+      toast({
+        title: 'Success',
+        description: 'Bio updated successfully',
+      });
+    } catch (error: any) {
+      toast({
+        title: 'Error',
+        description: error.message,
+        variant: 'destructive',
+      });
+    }
+  };
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -107,6 +178,118 @@ const Profile = () => {
     }
   };
   
+  const renderProfileHeader = () => (
+    <div className="flex flex-col items-center mb-10">
+      <div className="relative">
+        <Avatar className="h-32 w-32 mb-4">
+          <AvatarImage src={profile.avatar_url} alt={profile.full_name} />
+          <AvatarFallback className="text-3xl bg-primary/10 text-primary">
+            {profile.full_name?.charAt(0) || user?.email?.charAt(0)}
+          </AvatarFallback>
+        </Avatar>
+        {isOwnProfile && (
+          <div className="absolute bottom-4 right-0">
+            <label htmlFor="picture-upload" className="cursor-pointer">
+              <div className="rounded-full bg-primary p-2 text-white hover:bg-primary/90">
+                <Upload size={16} />
+              </div>
+              <input
+                id="picture-upload"
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleProfilePictureUpload}
+                disabled={uploading}
+              />
+            </label>
+          </div>
+        )}
+      </div>
+
+      <h1 className="text-3xl font-bold mb-2">{profile.full_name || "User"}</h1>
+      <p className="text-muted-foreground mb-4">{profile.email}</p>
+
+      <div className="w-full max-w-md mt-4">
+        {isOwnProfile ? (
+          isEditingBio ? (
+            <div className="space-y-4">
+              <Label htmlFor="bio">Bio</Label>
+              <Textarea
+                id="bio"
+                value={bioText}
+                onChange={(e) => setBioText(e.target.value)}
+                placeholder="Write something about yourself..."
+                className="min-h-[100px]"
+              />
+              <div className="flex gap-2 justify-end">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setIsEditingBio(false);
+                    setBioText(profile?.bio || '');
+                  }}
+                >
+                  Cancel
+                </Button>
+                <Button onClick={handleBioUpdate}>Save</Button>
+              </div>
+            </div>
+          ) : (
+            <div className="relative group">
+              <p className="text-muted-foreground text-center">
+                {profile?.bio || "No bio yet"}
+              </p>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="absolute -right-8 top-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                onClick={() => setIsEditingBio(true)}
+              >
+                <Edit size={16} />
+              </Button>
+            </div>
+          )
+        ) : (
+          <p className="text-muted-foreground text-center">
+            {profile?.bio || "No bio yet"}
+          </p>
+        )}
+      </div>
+
+      {isOwnProfile && (
+        <div className="flex space-x-3 mb-6">
+          <Button variant="outline" className="flex items-center gap-2">
+            <Edit size={16} />
+            Edit Profile
+          </Button>
+          <Button variant="outline" className="flex items-center gap-2">
+            <Settings size={16} />
+            Settings
+          </Button>
+        </div>
+      )}
+      
+      <div className="flex space-x-8 mt-2">
+        <div className="text-center">
+          <p className="text-2xl font-semibold">{memories.length}</p>
+          <p className="text-muted-foreground text-sm">Memories</p>
+        </div>
+        <div className="text-center">
+          <p className="text-2xl font-semibold">
+            {new Set(memories.map(memory => memory.emotion).filter(Boolean)).size}
+          </p>
+          <p className="text-muted-foreground text-sm">Emotions</p>
+        </div>
+        <div className="text-center">
+          <p className="text-2xl font-semibold">
+            {new Set(memories.map(memory => memory.location).filter(Boolean)).size}
+          </p>
+          <p className="text-muted-foreground text-sm">Locations</p>
+        </div>
+      </div>
+    </div>
+  );
+  
   if (loading) {
     return (
       <div className="min-h-screen pt-20 pb-10">
@@ -142,52 +325,7 @@ const Profile = () => {
   return (
     <div className="min-h-screen pt-20 pb-10">
       <div className="container mx-auto px-4">
-        {/* Profile Header */}
-        <div className="flex flex-col items-center mb-10">
-          <Avatar className="h-32 w-32 mb-4">
-            <AvatarImage src={profile.avatar_url} alt={profile.full_name} />
-            <AvatarFallback className="text-3xl bg-primary/10 text-primary">
-              {profile.full_name?.charAt(0) || user?.email?.charAt(0)}
-            </AvatarFallback>
-          </Avatar>
-          
-          <h1 className="text-3xl font-bold mb-2">{profile.full_name || "User"}</h1>
-          <p className="text-muted-foreground mb-4">{profile.email}</p>
-          
-          {isOwnProfile && (
-            <div className="flex space-x-3 mb-6">
-              <Button variant="outline" className="flex items-center gap-2">
-                <Edit size={16} />
-                Edit Profile
-              </Button>
-              <Button variant="outline" className="flex items-center gap-2">
-                <Settings size={16} />
-                Settings
-              </Button>
-            </div>
-          )}
-          
-          <div className="flex space-x-8 mt-2">
-            <div className="text-center">
-              <p className="text-2xl font-semibold">{memories.length}</p>
-              <p className="text-muted-foreground text-sm">Memories</p>
-            </div>
-            <div className="text-center">
-              <p className="text-2xl font-semibold">
-                {new Set(memories.map(memory => memory.emotion).filter(Boolean)).size}
-              </p>
-              <p className="text-muted-foreground text-sm">Emotions</p>
-            </div>
-            <div className="text-center">
-              <p className="text-2xl font-semibold">
-                {new Set(memories.map(memory => memory.location).filter(Boolean)).size}
-              </p>
-              <p className="text-muted-foreground text-sm">Locations</p>
-            </div>
-          </div>
-        </div>
-        
-        {/* Tabs */}
+        {renderProfileHeader()}
         <Tabs defaultValue="memories" className="max-w-4xl mx-auto">
           <TabsList className="grid grid-cols-2 mb-8">
             <TabsTrigger value="memories">Memories</TabsTrigger>
