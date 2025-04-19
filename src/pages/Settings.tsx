@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -9,11 +10,13 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/hooks/use-toast';
-import { User, Save, Lock, Bell, Eye, EyeOff, Image } from 'lucide-react';
+import { useProfilePicture } from '@/hooks/useProfilePicture';
+import { User, Save, Lock, Bell, Eye, EyeOff, Camera } from 'lucide-react';
 
 const Settings = () => {
   const { user, signOut } = useAuth();
   const { toast } = useToast();
+  const { uploadProfilePicture, uploading } = useProfilePicture();
   
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -128,6 +131,37 @@ const Settings = () => {
       setSaving(false);
     }
   };
+
+  const handleProfilePictureUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file || !user) return;
+
+    const url = await uploadProfilePicture(file, user.id);
+    if (url) {
+      try {
+        const { error } = await supabase
+          .from('profiles')
+          .update({ avatar_url: url })
+          .eq('id', user.id);
+
+        if (error) throw error;
+
+        setAvatarUrl(url);
+        setProfile({ ...profile, avatar_url: url });
+        
+        toast({
+          title: 'Success',
+          description: 'Profile picture updated successfully',
+        });
+      } catch (error: any) {
+        toast({
+          title: 'Error',
+          description: error.message || 'Failed to update profile picture',
+          variant: 'destructive',
+        });
+      }
+    }
+  };
   
   const handleSaveSettings = async () => {
     if (!user) return;
@@ -204,12 +238,28 @@ const Settings = () => {
             <Card>
               <CardContent className="p-6">
                 <div className="flex flex-col items-center">
-                  <Avatar className="h-24 w-24 mb-4">
-                    <AvatarImage src={avatarUrl} />
-                    <AvatarFallback className="text-lg">
-                      {fullName?.charAt(0) || email?.charAt(0)}
-                    </AvatarFallback>
-                  </Avatar>
+                  <div className="relative h-24 w-24 mb-4">
+                    <Avatar className="h-24 w-24">
+                      <AvatarImage src={avatarUrl} />
+                      <AvatarFallback className="text-lg">
+                        {fullName?.charAt(0) || email?.charAt(0)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <label htmlFor="settings-profile-upload" className="cursor-pointer absolute bottom-0 right-0">
+                      <div className="rounded-full bg-primary p-2 shadow-lg text-white hover:bg-primary/90 border-2 border-background">
+                        <Camera size={16} />
+                      </div>
+                      <input
+                        id="settings-profile-upload"
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={handleProfilePictureUpload}
+                        disabled={uploading}
+                        capture="environment"
+                      />
+                    </label>
+                  </div>
                   <h2 className="text-xl font-semibold mb-1">{fullName || "User"}</h2>
                   <p className="text-sm text-muted-foreground mb-4">{email}</p>
                   <div className="w-full mt-6 space-y-2">
@@ -289,24 +339,6 @@ const Settings = () => {
                         onChange={(e) => setLocation(e.target.value)} 
                         placeholder="Your location"
                       />
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <Label htmlFor="avatar">Profile Picture URL</Label>
-                      <div className="flex space-x-2">
-                        <Input 
-                          id="avatar" 
-                          value={avatarUrl} 
-                          onChange={(e) => setAvatarUrl(e.target.value)} 
-                          placeholder="URL to your profile picture"
-                        />
-                        <Button variant="outline" size="icon">
-                          <Image size={18} />
-                        </Button>
-                      </div>
-                      <p className="text-xs text-muted-foreground">
-                        Enter a URL for your profile picture
-                      </p>
                     </div>
                     
                     <Button 

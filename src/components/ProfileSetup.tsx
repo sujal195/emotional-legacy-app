@@ -13,7 +13,6 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Upload, UserPlus, Camera } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
-import { AspectRatio } from '@/components/ui/aspect-ratio';
 
 const ProfileSetup = () => {
   const { user } = useAuth();
@@ -161,6 +160,7 @@ const ProfileSetup = () => {
                     className="hidden"
                     onChange={handleProfilePictureUpload}
                     disabled={uploading}
+                    capture="environment"
                   />
                 </label>
               </div>

@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
@@ -14,7 +15,6 @@ import { useProfile } from '@/hooks/useProfile';
 import { useProfilePicture } from '@/hooks/useProfilePicture';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { AspectRatio } from '@/components/ui/aspect-ratio';
 
 const Profile = () => {
   const { id } = useParams();
@@ -202,6 +202,7 @@ const Profile = () => {
                 className="hidden"
                 onChange={handleProfilePictureUpload}
                 disabled={uploading}
+                capture="environment"
               />
             </label>
           )}
@@ -260,14 +261,18 @@ const Profile = () => {
 
       {isOwnProfile && (
         <div className="flex space-x-3 mt-6">
-          <Button variant="outline" className="flex items-center gap-2">
-            <Edit size={16} />
-            Edit Profile
-          </Button>
-          <Button variant="outline" className="flex items-center gap-2">
-            <Settings size={16} />
-            Settings
-          </Button>
+          <Link to="/settings">
+            <Button variant="outline" className="flex items-center gap-2">
+              <Edit size={16} />
+              Edit Profile
+            </Button>
+          </Link>
+          <Link to="/settings">
+            <Button variant="outline" className="flex items-center gap-2">
+              <Settings size={16} />
+              Settings
+            </Button>
+          </Link>
         </div>
       )}
       
