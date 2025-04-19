@@ -1,1 +1,8 @@
+
 project_id = "spweeempthmwxplxumvf"
+
+[functions.send-notification]
+verify_jwt = false
+
+[storage]
+profile_pictures = { public = true }

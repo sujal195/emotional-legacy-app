@@ -127,6 +127,7 @@ export type Database = {
           email: string | null
           full_name: string | null
           id: string
+          location: string | null
         }
         Insert: {
           avatar_url?: string | null
@@ -135,6 +136,7 @@ export type Database = {
           email?: string | null
           full_name?: string | null
           id: string
+          location?: string | null
         }
         Update: {
           avatar_url?: string | null
@@ -143,6 +145,25 @@ export type Database = {
           email?: string | null
           full_name?: string | null
           id?: string
+          location?: string | null
+        }
+        Relationships: []
+      }
+      user_stats: {
+        Row: {
+          id: number
+          last_updated: string | null
+          total_users: number | null
+        }
+        Insert: {
+          id?: number
+          last_updated?: string | null
+          total_users?: number | null
+        }
+        Update: {
+          id?: number
+          last_updated?: string | null
+          total_users?: number | null
         }
         Relationships: []
       }

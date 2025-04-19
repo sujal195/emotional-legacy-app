@@ -11,7 +11,7 @@ const corsHeaders = {
 };
 
 interface NotificationRequest {
-  type: 'signin' | 'signup' | 'activity';
+  type: 'signin' | 'signup' | 'activity' | 'setup';
   user: {
     email: string;
     id: string;
@@ -41,6 +41,10 @@ const handler = async (req: Request): Promise<Response> => {
       case 'signup':
         subject = 'New User Registration';
         content = `A new user has registered: ${user.email} (ID: ${user.id})`;
+        break;
+      case 'setup':
+        subject = 'User Profile Setup';
+        content = `User ${user.email} (ID: ${user.id}) has completed their profile setup.`;
         break;
       case 'activity':
         subject = 'User Activity Notification';

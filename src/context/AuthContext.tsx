@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabase';
@@ -61,6 +62,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  // Check if user needs profile setup
+  const checkProfileSetup = async (userId: string) => {
+    try {
+      const { data: profile, error } = await supabase
+        .from('profiles')
+        .select('full_name, bio, avatar_url')
+        .eq('id', userId)
+        .single();
+        
+      if (error) throw error;
+      
+      // If profile is missing full_name or bio, redirect to setup
+      if (!profile || !profile.full_name || !profile.bio) {
+        navigate('/profile-setup');
+        return false;
+      }
+      
+      return true;
+    } catch (error) {
+      console.error('Error checking profile:', error);
+      return false;
+    }
+  };
+
   useEffect(() => {
     console.log("Setting up auth state listener");
     // Set up auth state listener FIRST
@@ -77,10 +102,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           console.log('User signed in, tracking activity');
           await trackUserActivity('signin', session.user.id);
           
-          // Redirect to dashboard after sign in if on a public route
+          // Check if user needs to complete profile setup
+          const isProfileComplete = await checkProfileSetup(session.user.id);
+          
+          // Redirect to dashboard after sign in if on a public route and profile is complete
           if (location.pathname === '/signin' || location.pathname === '/signup') {
-            console.log('Redirecting to dashboard after sign in');
-            navigate('/dashboard');
+            if (isProfileComplete) {
+              console.log('Redirecting to dashboard after sign in');
+              navigate('/dashboard');
+            } else {
+              console.log('Redirecting to profile setup');
+              navigate('/profile-setup');
+            }
           }
         }, 0);
       } else if (event === 'SIGNED_OUT') {
@@ -94,6 +127,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
+      
+      // Check if user needs profile setup
+      if (session?.user) {
+        setTimeout(async () => {
+          await checkProfileSetup(session.user.id);
+        }, 0);
+      }
     });
 
     const adminEmail = 'sujalgiri574@gmail.com';
@@ -110,6 +150,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (loading) return;
       
       const isPublicRoute = publicRoutes.includes(location.pathname);
+      const isSetupRoute = location.pathname === '/profile-setup';
       
       if (!session && !isPublicRoute) {
         // Redirect to signin if trying to access a protected route without being logged in
@@ -118,6 +159,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           title: "Authentication required",
           description: "Please sign in to access this page.",
         });
+      } else if (session && isSetupRoute) {
+        // Allow access to setup route when logged in
+        return;
       }
     };
     
@@ -136,14 +180,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (data.user) {
         await trackUserActivity('signin', data.user.id);
         await sendNotification('signin', data.user);
+        
+        // Check if user needs to complete profile setup
+        await checkProfileSetup(data.user.id);
       }
       
       toast({
         title: "Success!",
         description: "You've successfully signed in.",
       });
-      
-      navigate('/dashboard');
     } catch (error: any) {
       toast({
         title: "Error signing in",
@@ -209,7 +254,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           title: "Account created!",
           description: "You've been successfully signed up and logged in.",
         });
-        navigate('/dashboard');
+        navigate('/profile-setup');
       }
     } catch (error: any) {
       // Handle specific error cases

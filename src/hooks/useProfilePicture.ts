@@ -11,6 +11,14 @@ export function useProfilePicture() {
     try {
       setUploading(true);
 
+      // Create the bucket if it doesn't exist
+      const { data: buckets } = await supabase.storage.listBuckets();
+      if (!buckets?.find(b => b.name === 'profile_pictures')) {
+        await supabase.storage.createBucket('profile_pictures', {
+          public: true
+        });
+      }
+
       const fileExt = file.name.split('.').pop();
       const fileName = `${userId}/profile.${fileExt}`;
       const filePath = `${fileName}`;

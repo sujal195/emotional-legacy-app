@@ -20,6 +20,7 @@ import NotFound from "./pages/NotFound";
 // Components
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
+import ProfileSetup from "./components/ProfileSetup";
 
 const queryClient = new QueryClient();
 
@@ -41,6 +42,7 @@ const App = () => (
                 <Route path="/timeline" element={<Timeline />} />
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/profile/:id" element={<Profile />} />
+                <Route path="/profile-setup" element={<ProfileSetup />} />
                 <Route path="/friends" element={<Friends />} />
                 <Route path="/settings" element={<Settings />} />
                 <Route path="*" element={<NotFound />} />
