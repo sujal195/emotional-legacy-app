@@ -11,6 +11,17 @@ export function useProfilePicture() {
     try {
       setUploading(true);
 
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        throw new Error('File size must be less than 5MB');
+      }
+
+      // Validate file type
+      const validTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
+      if (!validTypes.includes(file.type)) {
+        throw new Error('File must be a valid image (JPEG, PNG, or WebP)');
+      }
+
       // Create the bucket if it doesn't exist
       const { data: buckets } = await supabase.storage.listBuckets();
       if (!buckets?.find(b => b.name === 'profile_pictures')) {
@@ -23,12 +34,14 @@ export function useProfilePicture() {
       const fileName = `${userId}/profile.${fileExt}`;
       const filePath = `${fileName}`;
 
+      // Upload the file
       const { error: uploadError } = await supabase.storage
         .from('profile_pictures')
         .upload(filePath, file, { upsert: true });
 
       if (uploadError) throw uploadError;
 
+      // Get the public URL
       const { data: { publicUrl } } = supabase.storage
         .from('profile_pictures')
         .getPublicUrl(filePath);

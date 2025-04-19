@@ -7,13 +7,14 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Heart, Calendar, MapPin, Edit, Settings, Upload } from 'lucide-react';
+import { Heart, Calendar, MapPin, Edit, Settings, Camera } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { useProfile } from '@/hooks/useProfile';
 import { useProfilePicture } from '@/hooks/useProfilePicture';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
+import { AspectRatio } from '@/components/ui/aspect-ratio';
 
 const Profile = () => {
   const { id } = useParams();
@@ -180,21 +181,28 @@ const Profile = () => {
   
   const renderProfileHeader = () => (
     <div className="flex flex-col items-center mb-10">
-      <div className="relative">
-        <Avatar className="h-32 w-32 mb-4">
-          <AvatarImage src={profile.avatar_url} alt={profile.full_name} />
-          <AvatarFallback className="text-3xl bg-primary/10 text-primary">
-            {profile.full_name?.charAt(0) || user?.email?.charAt(0)}
-          </AvatarFallback>
-        </Avatar>
-        {isOwnProfile && (
-          <div className="absolute bottom-4 right-0">
-            <label htmlFor="picture-upload" className="cursor-pointer">
-              <div className="rounded-full bg-primary p-2 text-white hover:bg-primary/90">
-                <Upload size={16} />
+      <div className="relative mb-6">
+        <div className="w-36 h-36 mx-auto">
+          <div className="w-full h-full overflow-hidden rounded-full border-4 border-primary/20 bg-muted shadow-xl">
+            {profile.avatar_url ? (
+              <img
+                src={profile.avatar_url}
+                alt={profile.full_name}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center bg-primary/10 text-primary text-5xl font-semibold">
+                {profile.full_name?.charAt(0) || profile.email?.charAt(0)}
+              </div>
+            )}
+          </div>
+          {isOwnProfile && (
+            <label htmlFor="profile-picture-upload" className="cursor-pointer absolute bottom-1 right-1">
+              <div className="rounded-full bg-primary p-2 shadow-lg text-white hover:bg-primary/90 border-2 border-background">
+                <Camera size={18} />
               </div>
               <input
-                id="picture-upload"
+                id="profile-picture-upload"
                 type="file"
                 accept="image/*"
                 className="hidden"
@@ -202,8 +210,8 @@ const Profile = () => {
                 disabled={uploading}
               />
             </label>
-          </div>
-        )}
+          )}
+        </div>
       </div>
 
       <h1 className="text-3xl font-bold mb-2">{profile.full_name || "User"}</h1>
@@ -257,7 +265,7 @@ const Profile = () => {
       </div>
 
       {isOwnProfile && (
-        <div className="flex space-x-3 mb-6">
+        <div className="flex space-x-3 mt-6">
           <Button variant="outline" className="flex items-center gap-2">
             <Edit size={16} />
             Edit Profile
@@ -269,7 +277,7 @@ const Profile = () => {
         </div>
       )}
       
-      <div className="flex space-x-8 mt-2">
+      <div className="flex space-x-8 mt-6">
         <div className="text-center">
           <p className="text-2xl font-semibold">{memories.length}</p>
           <p className="text-muted-foreground text-sm">Memories</p>
@@ -295,7 +303,7 @@ const Profile = () => {
       <div className="min-h-screen pt-20 pb-10">
         <div className="container mx-auto px-4">
           <div className="flex flex-col items-center space-y-6">
-            <Skeleton className="h-32 w-32 rounded-full" />
+            <div className="w-36 h-36 overflow-hidden rounded-full bg-muted/50 animate-pulse" />
             <Skeleton className="h-10 w-64" />
             <Skeleton className="h-6 w-48" />
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-4xl">

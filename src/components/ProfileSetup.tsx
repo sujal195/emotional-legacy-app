@@ -11,8 +11,9 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Upload, UserPlus, CheckCircle, X } from 'lucide-react';
+import { Upload, UserPlus, Camera } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
+import { AspectRatio } from '@/components/ui/aspect-ratio';
 
 const ProfileSetup = () => {
   const { user } = useAuth();
@@ -135,16 +136,23 @@ const ProfileSetup = () => {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4 flex flex-col items-center">
-              <div className="relative">
-                <Avatar className="h-32 w-32 mb-4">
-                  <AvatarImage src={avatarUrl} />
-                  <AvatarFallback className="text-3xl bg-primary/10 text-primary">
-                    {name ? name.charAt(0) : user?.email?.charAt(0)}
-                  </AvatarFallback>
-                </Avatar>
-                <label htmlFor="picture-upload" className="cursor-pointer absolute bottom-4 right-0">
-                  <div className="rounded-full bg-primary p-2 text-white hover:bg-primary/90">
-                    <Upload size={16} />
+              <div className="relative w-32 h-32">
+                <div className="overflow-hidden rounded-full border-4 border-primary/20 w-full h-full bg-muted">
+                  {avatarUrl ? (
+                    <img 
+                      src={avatarUrl} 
+                      alt="Profile" 
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-primary/10 text-primary text-4xl font-semibold">
+                      {name ? name.charAt(0) : user?.email?.charAt(0)}
+                    </div>
+                  )}
+                </div>
+                <label htmlFor="picture-upload" className="cursor-pointer absolute bottom-0 right-0">
+                  <div className="rounded-full bg-primary p-2 shadow-lg text-white hover:bg-primary/90 border-2 border-background">
+                    <Camera size={18} />
                   </div>
                   <input
                     id="picture-upload"
@@ -156,7 +164,7 @@ const ProfileSetup = () => {
                   />
                 </label>
               </div>
-              <div className="w-full">
+              <div className="w-full mt-4">
                 <Label htmlFor="name">Your Name</Label>
                 <Input 
                   id="name"
