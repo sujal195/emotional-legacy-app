@@ -1,4 +1,3 @@
-
 import { createClient } from '@supabase/supabase-js';
 import { supabase as integrationsClient } from '@/integrations/supabase/client';
 
@@ -13,6 +12,16 @@ export type Profile = {
   avatar_url: string | null;
   bio: string | null;
   location: string | null;
+  created_at: string;
+  email_notifications: boolean;
+  is_private: boolean;
+}
+
+export type UserActivity = {
+  id: string;
+  user_id: string;
+  activity_type: string;
+  timestamp: string;
   created_at: string;
 }
 

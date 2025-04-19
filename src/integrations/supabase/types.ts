@@ -125,8 +125,10 @@ export type Database = {
           bio: string | null
           created_at: string
           email: string | null
+          email_notifications: boolean | null
           full_name: string | null
           id: string
+          is_private: boolean | null
           location: string | null
         }
         Insert: {
@@ -134,8 +136,10 @@ export type Database = {
           bio?: string | null
           created_at?: string
           email?: string | null
+          email_notifications?: boolean | null
           full_name?: string | null
           id: string
+          is_private?: boolean | null
           location?: string | null
         }
         Update: {
@@ -143,9 +147,35 @@ export type Database = {
           bio?: string | null
           created_at?: string
           email?: string | null
+          email_notifications?: boolean | null
           full_name?: string | null
           id?: string
+          is_private?: boolean | null
           location?: string | null
+        }
+        Relationships: []
+      }
+      user_activity: {
+        Row: {
+          activity_type: string
+          created_at: string
+          id: string
+          timestamp: string
+          user_id: string
+        }
+        Insert: {
+          activity_type: string
+          created_at?: string
+          id?: string
+          timestamp?: string
+          user_id: string
+        }
+        Update: {
+          activity_type?: string
+          created_at?: string
+          id?: string
+          timestamp?: string
+          user_id?: string
         }
         Relationships: []
       }

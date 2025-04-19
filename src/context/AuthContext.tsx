@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabase';
@@ -42,15 +41,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const trackUserActivity = async (type: 'signin' | 'signout', userId: string) => {
     try {
+      const timestamp = new Date().toISOString();
       const { error } = await supabase
         .from('user_activity')
-        .insert([
-          {
-            user_id: userId,
-            activity_type: type,
-            timestamp: new Date().toISOString(),
-          }
-        ]);
+        .insert({
+          user_id: userId,
+          activity_type: type,
+          timestamp
+        });
 
       if (error) throw error;
 
@@ -62,7 +60,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  // Check if user needs profile setup
   const checkProfileSetup = async (userId: string) => {
     try {
       const { data: profile, error } = await supabase
@@ -73,7 +70,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         
       if (error) throw error;
       
-      // If profile is missing full_name or bio, redirect to setup
       if (!profile || !profile.full_name || !profile.bio) {
         navigate('/profile-setup');
         return false;
@@ -88,24 +84,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     console.log("Setting up auth state listener");
-    // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       console.log('Auth state changed:', event, session?.user?.email);
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
       
-      // Handle post-login/signup activities
       if (event === 'SIGNED_IN' && session?.user) {
-        // Use setTimeout to avoid deadlocks with Supabase client
         setTimeout(async () => {
           console.log('User signed in, tracking activity');
           await trackUserActivity('signin', session.user.id);
           
-          // Check if user needs to complete profile setup
           const isProfileComplete = await checkProfileSetup(session.user.id);
           
-          // Redirect to dashboard after sign in if on a public route and profile is complete
           if (location.pathname === '/signin' || location.pathname === '/signup') {
             if (isProfileComplete) {
               console.log('Redirecting to dashboard after sign in');
@@ -121,14 +112,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     });
 
-    // THEN check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
       console.log("Got existing session:", session?.user?.email);
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
       
-      // Check if user needs profile setup
       if (session?.user) {
         setTimeout(async () => {
           await checkProfileSetup(session.user.id);
@@ -153,14 +142,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const isSetupRoute = location.pathname === '/profile-setup';
       
       if (!session && !isPublicRoute) {
-        // Redirect to signin if trying to access a protected route without being logged in
         navigate('/signin', { replace: true });
         toast({
           title: "Authentication required",
           description: "Please sign in to access this page.",
         });
       } else if (session && isSetupRoute) {
-        // Allow access to setup route when logged in
         return;
       }
     };
@@ -181,7 +168,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         await trackUserActivity('signin', data.user.id);
         await sendNotification('signin', data.user);
         
-        // Check if user needs to complete profile setup
         await checkProfileSetup(data.user.id);
       }
       
@@ -222,7 +208,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         await sendNotification('signup', data.user);
       }
       
-      // Only create profile if we have a user ID
       if (data.user?.id) {
         const { error: profileError } = await supabase
           .from('profiles')
@@ -236,11 +221,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           
         if (profileError) {
           console.error('Error creating profile:', profileError);
-          // Continue anyway since the user was created
         }
       }
       
-      // Check if email confirmation is required
       const isEmailConfirmationRequired = data.session === null && data.user !== null;
       
       if (isEmailConfirmationRequired) {
@@ -257,13 +240,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         navigate('/profile-setup');
       }
     } catch (error: any) {
-      // Handle specific error cases
       let errorMessage = "An error occurred during sign up.";
       
       if (error.message.includes("User already registered")) {
         errorMessage = "This email is already registered. Please sign in instead.";
       } else if (error.message.includes("Password should be")) {
-        errorMessage = error.message; // Use the password requirement message
+        errorMessage = error.message;
       } else if (error.message.includes("Invalid email")) {
         errorMessage = "Please enter a valid email address.";
       } else {
@@ -276,7 +258,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         variant: "destructive",
       });
       
-      // Rethrow the error so it can be caught by the component
       throw error;
     } finally {
       setLoading(false);
