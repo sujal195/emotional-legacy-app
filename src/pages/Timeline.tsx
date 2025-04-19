@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
 import { ChevronDown, ChevronUp, Calendar, Heart, MapPin, MessageCircle, Image, Edit, Trash2, Plus } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -266,9 +267,11 @@ const Timeline = () => {
                               <MessageCircle className="h-4 w-4 mr-1" />
                               {memory.comments} comments
                             </Button>
-                            <Button variant="ghost" size="sm" className="text-primary">
-                              View Full Memory
-                            </Button>
+                            <Link to={`/memory/${memory.id}`}>
+                              <Button variant="ghost" size="sm" className="text-primary">
+                                View Full Memory
+                              </Button>
+                            </Link>
                           </div>
                         </CardContent>
                       </Card>

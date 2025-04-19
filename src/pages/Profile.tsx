@@ -52,7 +52,6 @@ const Profile = () => {
 
         if (error) throw error;
 
-        // Refresh profile data
         setProfile({ ...profile, avatar_url: url });
         
         toast({
@@ -103,7 +102,6 @@ const Profile = () => {
       try {
         setLoading(true);
         
-        // Fetch profile data
         const { data: profileData, error: profileError } = await supabase
           .from('profiles')
           .select('*')
@@ -113,7 +111,6 @@ const Profile = () => {
         if (profileError) throw profileError;
         setProfile(profileData);
         
-        // Fetch memories
         const { data: memoriesData, error: memoriesError } = await supabase
           .from('memories')
           .select('*')
@@ -123,7 +120,6 @@ const Profile = () => {
         if (memoriesError) throw memoriesError;
         setMemories(memoriesData || []);
         
-        // Fetch user's liked memories
         if (user) {
           const { data: likesData } = await supabase
             .from('memory_likes')
@@ -154,7 +150,6 @@ const Profile = () => {
       const isLiked = likedMemories.includes(memoryId);
       
       if (isLiked) {
-        // Unlike the memory
         await supabase
           .from('memory_likes')
           .delete()
@@ -162,7 +157,6 @@ const Profile = () => {
           
         setLikedMemories(likedMemories.filter(id => id !== memoryId));
       } else {
-        // Like the memory
         await supabase
           .from('memory_likes')
           .insert({ user_id: user.id, memory_id: memoryId });
@@ -403,6 +397,11 @@ const Profile = () => {
                           />
                         </div>
                       )}
+                      <div className="mt-4 text-right">
+                        <Link to={`/memory/${memory.id}`}>
+                          <Button variant="ghost" size="sm">View Memory</Button>
+                        </Link>
+                      </div>
                     </CardContent>
                   </Card>
                 ))}
@@ -438,6 +437,11 @@ const Profile = () => {
                           {memory.emotion}
                         </Badge>
                       )}
+                      <div className="mt-3 text-right">
+                        <Link to={`/memory/${memory.id}`}>
+                          <Button variant="ghost" size="sm">View Memory</Button>
+                        </Link>
+                      </div>
                     </div>
                   </div>
                 ))

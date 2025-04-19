@@ -16,6 +16,7 @@ import Profile from "./pages/Profile";
 import Friends from "./pages/Friends";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
+import MemoryDetail from "./pages/MemoryDetail";
 
 // Components
 import Navbar from "./components/Navbar";
@@ -40,6 +41,7 @@ const App = () => (
                 <Route path="/signup" element={<SignUp />} />
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/timeline" element={<Timeline />} />
+                <Route path="/memory/:id" element={<MemoryDetail />} />
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/profile/:id" element={<Profile />} />
                 <Route path="/profile-setup" element={<ProfileSetup />} />
